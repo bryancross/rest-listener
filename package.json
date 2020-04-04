@@ -1,0 +1,19 @@
+{
+  "name": "rest-listener",
+  "version": "1.0.0",
+  "description": "Simple REST endpoint listener",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "brkc",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/rest": "^17.1.4",
+    "date-fns": "^2.11.1",
+    "http": "0.0.1-security",
+    "jshint": "^2.11.0",
+    "json-path-processor": "^0.2.5",
+    "octokit": "^1.0.0-hello-world"
+  }
+}
