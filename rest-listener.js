@@ -7,8 +7,9 @@ const GitHubClient = require('@octokit/rest');
 const Logger = require('./lib/logger.js');
 //const HashMap = require('hashmap');
 const GitHubToken = "";
-/*
 const HttpDispatcher = require('httpdispatcher');
+/*
+
 const Worker = require('./worker.js');
 const JSComp = require('./lib/json-compare.js');
 
