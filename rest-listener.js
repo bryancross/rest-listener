@@ -134,12 +134,19 @@ RestListener.prototype.initHTTPServer = function(){
 	});
 };
 
-RestListener.prototype.handleGet = function() {
-    this.logger.log("GET Received");
+RestListener.prototype.handleGet = function(req,res) {
+    let that = req.rt;
+    res.respond(204,"GET Received");
+    that.logger.log("GET Received");
 
+};
 
-
-}
+RestListener.prototype.handlePost = function(req,res) {
+    let that = req.rt;
+    that.logger.log(req.body);
+    res.respond(204,"POST Received");
+    that.logger.log("POST Received");
+};
 
 RestListener.prototype.handleStop = function(req,res)
 {
@@ -148,4 +155,4 @@ RestListener.prototype.handleStop = function(req,res)
     this.server.close(() => {
 		self.shutdown();
 	});
-}
+};
