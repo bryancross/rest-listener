@@ -1,10 +1,11 @@
+'use strict';
 const fs = require('fs');
 const http = require('http');
 const GitHubClient = require('@octokit/rest');
 //const GitHubClient = require('github'); // https://github.com/mikedeboer/node-github
 //const GHClient = require('./lib/github/lib/index.js'); // https://github.com/mikedeboer/node-github
 const Logger = require('./lib/logger.js');
-const HashMap = require('hashmap');
+//const HashMap = require('hashmap');
 const GitHubToken = "";
 /*
 const HttpDispatcher = require('httpdispatcher');
@@ -18,7 +19,7 @@ const ERR_LOADING_TEMPLATE = 1;
 
 module.exports = RestListener;
 
-function RepoTemplate() {
+function RestListener() {
 	try {
         this.init();
 	}
@@ -131,6 +132,13 @@ RestListener.prototype.initHTTPServer = function(){
 		});
 	});
 };
+
+RestListener.prototype.handleGet = function() {
+    this.logger.log("GET Received");
+
+
+
+}
 
 RestListener.prototype.handleStop = function(req,res)
 {

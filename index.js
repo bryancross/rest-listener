@@ -1,5 +1,5 @@
 const RL = require('./rest-listener.js');
-var http = require('http');
+//var http = require('http');
 
 //var config = require('./config/config.json');
 //var argPAT = '';
@@ -14,6 +14,6 @@ startup();
 
 function startup()
 {
-    console.log("starting repo-template");
+    console.log("starting rest-listener");
     const rt = new RL();
 }
