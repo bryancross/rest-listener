@@ -9,6 +9,7 @@
   "author": "brkc",
   "license": "ISC",
   "dependencies": {
+    "@bryancross/logger": "^1.0.1",
     "@octokit/rest": "^17.1.4",
     "date-fns": "1.29.0",
     "deep-diff": "^1.0.2",
