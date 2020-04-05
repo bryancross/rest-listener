@@ -45,13 +45,18 @@ RestListener.prototype.init = function () {
     var color = Math.floor(Math.random() * 6) + 30;
     var colorString = '\x1b[' + color + 'm';
 
-	this.logger = new Logger({
+	this.logger = new Logger();
+	this.payloadLogger = new Logger();
+	this.payloadLogger.mode = 'json';
+    /*
+    this.logger = new Logger({
         "syslogPath": "./log/rest-listener.log",
         "logPath": "./log/" + this.ID + ".json",
         "columnSpec": {cols: [30, 40,15, 30, 50, 50], padding: 10, prefix:"SYSLOG: "},
         "ID":null,
         "color":"\x1b[36m"
     });
+    */
     this.logger.syslog('Server startup', 'init()', 'OK');
 };
 
@@ -142,10 +147,19 @@ RestListener.prototype.handleGet = function(req,res) {
 };
 
 RestListener.prototype.handlePost = function(req,res) {
-    let that = req.rt;
+	var bodyJSON = {};
+	let that = req.rt;
     that.logger.log(req.body);
     res.respond(204,"POST Received");
-    that.logger.log("POST Received");
+	that.logger.syslog("POST Received");
+	try {
+		bodyJSON = JSON.parse(req.body)
+	}
+	catch(e)
+	{
+		bodyJSON.msg = req.body;
+	}
+	that.payloadLogger.log(bodyJSON);
 };
 
 RestListener.prototype.handleStop = function(req,res)
