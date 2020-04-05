@@ -8,6 +8,8 @@ const Logger = require('./lib/logger.js');
 //const HashMap = require('hashmap');
 const GitHubToken = "";
 const HttpDispatcher = require('httpdispatcher');
+const sysLogger = null;
+const payloadLogger = null;
 /*
 
 const Worker = require('./worker.js');
@@ -28,12 +30,12 @@ function RestListener() {
 	{
 		if(err.code == 'ENOENT' && err.errno == -2)
 		{
-			this.logger.syslog("No configuration found.","RepoTemplate","Exception",err);
+			this.sysLogger.syslog("No configuration found.","RepoTemplate","Exception",err);
 			this.suspended = true;
 		}
 		else
 		{
-			this.logger.endlog("Error initializing server","RepoTemplate","Fatal",err);
+			this.sysLogger.endlog("Error initializing server","RepoTemplate","Fatal",err);
 			process.exit(0);
 		}
 	}
@@ -45,9 +47,14 @@ RestListener.prototype.init = function () {
     var color = Math.floor(Math.random() * 6) + 30;
     var colorString = '\x1b[' + color + 'm';
 
-	this.logger = new Logger();
-	this.payloadLogger = new Logger();
-	this.payloadLogger.mode = 'json';
+	this.sysLogger = new Logger();
+	this.payloadLogger = new Logger({syslogPath: "./log/shitbox.log",
+	name: "payloadLogger",
+	logPath: "./log/",
+	columnSpec: {cols: [30, 40,15, 30, 50, 50], padding: 10, prefix:"SHITBOX: "},
+	color:"\x1b[36m",
+	mode:"json"});
+	//this.payloadLogger.mode = 'json';
     /*
     this.logger = new Logger({
         "syslogPath": "./log/rest-listener.log",
@@ -57,7 +64,7 @@ RestListener.prototype.init = function () {
         "color":"\x1b[36m"
     });
     */
-    this.logger.syslog('Server startup', 'init()', 'OK');
+    this.sysLogger.syslog('Server startup', 'init()', 'OK');
 };
 
 RestListener.prototype.initHTTPServer = function(){
@@ -112,7 +119,7 @@ RestListener.prototype.initHTTPServer = function(){
 						&& request.url !== '/reloadConfig')
 					{
 						response.respond(503, this.getStatusMessage());
-						this.logger.syslog(this.getStatusMessage(), "createServer.dispatch","OK");
+						this.sysLogger.syslog(this.getStatusMessage(), "createServer.dispatch","OK");
 						return;
 					}
 					this.dispatcher.dispatch(request, response);
@@ -120,7 +127,7 @@ RestListener.prototype.initHTTPServer = function(){
 					if (err.message === 'SHUTDOWN')			{
 						throw err;
 						}
-				self.logger.syslog('Error dispatching HTTP request', 'this.server.dispatcher', 'OK', err);
+				self.sysLogger.syslog('Error dispatching HTTP request', 'this.server.dispatcher', 'OK', err);
         		response.respond(503, "Error dispatching HTTP request",err.message);
 				}
 		});
@@ -128,7 +135,7 @@ RestListener.prototype.initHTTPServer = function(){
 	// Startup the server
 	this.server.listen(PORT, () => {
 		// Callback when server is successfully listening
-		self.logger.syslog('Server listening on: http://localhost: ' + PORT, 'init()', 'OK');
+		self.sysLogger.syslog('Server listening on: http://localhost: ' + PORT, 'init()', 'OK');
 	});
 
 	// Cleanup after ourselves if we get nerve-pinched
@@ -142,16 +149,16 @@ RestListener.prototype.initHTTPServer = function(){
 RestListener.prototype.handleGet = function(req,res) {
     let that = req.rt;
     res.respond(204,"GET Received");
-    that.logger.log("GET Received");
+    that.sysLogger.syslog("GET Received");
 
 };
 
 RestListener.prototype.handlePost = function(req,res) {
 	var bodyJSON = {};
 	let that = req.rt;
-    that.logger.log(req.body);
+    that.sysLogger.syslog(req.body);
     res.respond(204,"POST Received");
-	that.logger.syslog("POST Received");
+	that.sysLogger.syslog("POST Received");
 	try {
 		bodyJSON = JSON.parse(req.body)
 	}
@@ -159,13 +166,14 @@ RestListener.prototype.handlePost = function(req,res) {
 	{
 		bodyJSON.msg = req.body;
 	}
+	//that.payloadLogger.syslog(bodyJSON);
 	that.payloadLogger.log(bodyJSON);
 };
 
 RestListener.prototype.handleStop = function(req,res)
 {
 	let that = req.rt;
-    this.logger.syslog('Server STOP received: ' + msg);
+    this.sysLogger.syslog('Server STOP received: ' + msg);
     this.server.close(() => {
 		self.shutdown();
 	});
