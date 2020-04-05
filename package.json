@@ -10,13 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "@bryancross/logger": "^1.0.1",
-    "@octokit/rest": "^17.1.4",
     "date-fns": "1.29.0",
     "deep-diff": "^1.0.2",
     "http": "0.0.1-security",
     "httpdispatcher": "^2.1.2",
     "jshint": "^2.11.0",
-    "json-path-processor": "^0.2.5",
-    "octokit": "^1.0.0-hello-world"
+    "json-path-processor": "^0.2.5"
   }
 }

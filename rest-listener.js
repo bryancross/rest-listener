@@ -1,25 +1,12 @@
 'use strict';
 const fs = require('fs');
 const http = require('http');
-const GitHubClient = require('@octokit/rest');
-//const GitHubClient = require('github'); // https://github.com/mikedeboer/node-github
-//const GHClient = require('./lib/github/lib/index.js'); // https://github.com/mikedeboer/node-github
-//const Logger = require('./lib/logger.js');
 const Logger = require('@bryancross/logger');
-//const HashMap = require('hashmap');
-const GitHubToken = "";
 const HttpDispatcher = require('httpdispatcher');
 const sysLogger = null;
 const payloadLogger = null;
-/*
-
-const Worker = require('./worker.js');
-const JSComp = require('./lib/json-compare.js');
-
-const uNameTest = require('github-username-regex');
-*/
 const PORT = process.env.PORT || 3000;
-const ERR_LOADING_TEMPLATE = 1;
+const suspended = false;
 
 module.exports = RestListener;
 
@@ -72,7 +59,10 @@ RestListener.prototype.initHTTPServer = function(){
 	let self = this;
 	this.dispatcher = new HttpDispatcher();
     this.dispatcher.onPost('/',this.handlePost);
-    this.dispatcher.onGet('/',this.handleGet);
+	this.dispatcher.onGet('/',this.handleStatus);
+	this.dispatcher.onGet('/suspend', this.handleSuspend);
+	this.dispatcher.onGet('/resume',this.handleResume);
+	
 
 	this.server = http.createServer((request, response) => {
 			try {
@@ -147,6 +137,53 @@ RestListener.prototype.initHTTPServer = function(){
 	});
 };
 
+RestListener.prototype.handleStatus = function(req,res)
+{
+	let that = req.rt;
+	res.respond(200,that.getStatusMessage());
+	return;
+}
+
+RestListener.prototype.getStatusMessage = function(req,res)
+{
+	if(this.suspended)
+	{
+		return "Server is suspended";
+	}
+	else
+	{
+		return "Server is ACTIVE";
+	}
+
+
+}
+
+RestListener.prototype.handleSuspend = function(req, res)
+{
+	let that = req.rt;
+	that.suspended = true;
+    res.respond(200,{message: 'Server SUSPEND received.  Server is suspended.'},'json');
+	that.sysLogger.syslog('Server SUSPEND received.  Server is suspended.')
+};
+
+RestListener.prototype.handleResume = function(req, res)
+{
+    let that = req.rt
+	that.suspended = false;
+    res.respond(200,{message: 'Server RESUME received.  Server is resumed.'},'json');
+    that.sysLogger.syslog('Server RESUME received.  Server is resumed.')
+};
+
+RestListener.prototype.handleStop = function(req,res)
+{
+	let that = req.rt;
+	that.sysLogger.syslog('Server STOP received: ' + req.body);
+	res.respond(200,{message: 'Server SHUTDOWN received'},'json');
+    that.server.close(() => {
+		this.shutdown();
+	});
+}
+
 RestListener.prototype.handleGet = function(req,res) {
     let that = req.rt;
     res.respond(204,"GET Received");
@@ -171,11 +208,3 @@ RestListener.prototype.handlePost = function(req,res) {
 	that.payloadLogger.log(bodyJSON);
 };
 
-RestListener.prototype.handleStop = function(req,res)
-{
-	let that = req.rt;
-    this.sysLogger.syslog('Server STOP received: ' + msg);
-    this.server.close(() => {
-		self.shutdown();
-	});
-};
